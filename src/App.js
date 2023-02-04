@@ -1,25 +1,54 @@
-import logo from './logo.svg';
-import './App.css';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate
+} from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 
-function App() {
+import { UserProvider } from './contexts/UserContext';
+import { GlobalStyle } from './styles/reset';
+import { useToken } from './hooks/useToken';
+
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+
+      <ToastContainer />
+        <UserProvider>
+          <BrowserRouter>
+           <GlobalStyle />
+            <Routes>
+              <Route path="/" element={<EventsDashboard />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/event/:eventId" element={<Event />} />
+
+              <Route path="/user" element={
+                <ProtectedRoute>
+                  <h1>user page</h1>
+                </ProtectedRoute>}
+              />
+              <Route path="/creator" element={
+                <ProtectedRoute>
+                  <h1>creator page</h1>
+                </ProtectedRoute>}
+              />
+            </Routes>
+          </BrowserRouter>
+        </UserProvider>
+    </>
   );
 }
 
-export default App;
+function ProtectedRoute({ children }) {
+  const token = useToken();
+
+  if (!token) {
+    return <Navigate to="/sign-in" />;
+  }
+
+  return <>
+    {children}
+  </>;
+}
